@@ -55,6 +55,7 @@ export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: 
     "Generate a Python script to analyze a CSV file and create a bar chart.",
     "Fix a syntax error in `src/ai/flows/prz-validation.ts`. The error was ```json in a template literal.",
     "Draft an email to my team about the new project deadline.",
+    "Audit the application code for improvements.",
   ];
 
   return (
