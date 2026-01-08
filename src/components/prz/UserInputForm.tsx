@@ -51,6 +51,12 @@ export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: 
     }
   }
 
+  const exampleRequests = [
+    "Generate a Python script to analyze a CSV file and create a bar chart.",
+    "Fix a syntax error in `src/ai/flows/prz-validation.ts`. The error was ```json in a template literal.",
+    "Draft an email to my team about the new project deadline.",
+  ];
+
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -61,7 +67,7 @@ export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: 
             <FormItem>
               <FormControl>
                 <Textarea
-                  placeholder="Enter your task or request here. e.g., 'Generate a Python script to analyze a CSV file and create a bar chart.'"
+                  placeholder="Enter your task or request here..."
                   className="min-h-[120px] resize-none text-base"
                   {...field}
                 />
@@ -70,6 +76,21 @@ export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: 
             </FormItem>
           )}
         />
+        <div className="text-xs text-muted-foreground">
+          Try an example:
+          <div className="flex flex-wrap gap-2 mt-2">
+            {exampleRequests.map((req, i) => (
+              <button
+                key={i}
+                type="button"
+                onClick={() => form.setValue('request', req)}
+                className="px-2 py-1 border rounded-md text-xs hover:bg-accent"
+              >
+                "{req.substring(0,40)}..."
+              </button>
+            ))}
+          </div>
+        </div>
         <Button type="submit" disabled={isLoading} size="lg" className="w-full font-semibold">
           {isLoading ? (
             <LoadingSpinner />

@@ -106,7 +106,7 @@ Output the flow, resonance, conductivity, tier, and validator consensus.
 
 Follow this schema:
 {{{outputSchema}}}
-`, 
+`,
 });
 
 function classifyTier(flow: number): string {
