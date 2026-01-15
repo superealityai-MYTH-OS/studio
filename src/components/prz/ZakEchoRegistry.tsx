@@ -19,7 +19,7 @@ export function ZakEchoRegistry({ mintedEchoes = [] }: ZakEchoRegistryProps) {
           ZAK Echo Library (Permanent Registry)
         </CardTitle>
         <CardDescription>
-          Reusable patterns captured from high-flow task completions. {mintedEchoes.length > 0 && `${mintedEchoes.length} new echo(s) minted this session.`}
+          Reusable patterns captured from high-flow task completions. {mintedEchoes.length > 0 && `${mintedEchoes.length} new echo${mintedEchoes.length === 1 ? '' : 's'} minted this session.`}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">

@@ -26,10 +26,8 @@ export default function Home() {
           setApiKeyWarning('GOOGLE_GENAI_API_KEY is not configured. The PRZ pipeline requires a valid API key to function.');
         }
       } catch (e) {
-        // If endpoint doesn't exist yet, check client-side
-        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY && !process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY) {
-          setApiKeyWarning('API key environment variable not detected. Please configure GOOGLE_GENAI_API_KEY to use the PRZ pipeline.');
-        }
+        // If endpoint fails, show generic warning
+        setApiKeyWarning('Unable to verify API key configuration. Please ensure GOOGLE_GENAI_API_KEY is set in your environment.');
       }
     };
     checkApiKey();
