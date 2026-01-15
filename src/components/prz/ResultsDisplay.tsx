@@ -13,12 +13,13 @@ function getTierBadgeVariant(tier: string): 'default' | 'secondary' | 'destructi
 }
 
 export function ResultsDisplay({ result }: { result: PrzPipelineOutput }) {
-  const { intentResult, deliverable, validationResult, mintingResult } = result;
+  const { intentResult, zakEchoSearchResult, deliverable, validationResult, mintingResult } = result;
 
   return (
     <Tabs defaultValue="validation" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="validation">Validation</TabsTrigger>
+        <TabsTrigger value="patterns">Pattern Match</TabsTrigger>
         <TabsTrigger value="deliverable">Deliverable</TabsTrigger>
         <TabsTrigger value="registry">ZAK Echo Registry</TabsTrigger>
       </TabsList>
@@ -113,6 +114,81 @@ export function ResultsDisplay({ result }: { result: PrzPipelineOutput }) {
             </Card>
           </div>
         </div>
+      </TabsContent>
+
+      <TabsContent value="patterns" className="mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Waypoints className="text-accent" />
+              Harmonic Pattern Matching
+            </CardTitle>
+            <CardDescription>
+              Searches ZAK Echo Registry using harmonic field similarity detection (threshold: 0.85+)
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {zakEchoSearchResult.appliedPattern ? (
+              <div className="space-y-4">
+                <div className="p-4 border-2 border-accent rounded-lg bg-accent/10">
+                  <div className="flex items-start gap-3">
+                    <CheckCircle className="h-6 w-6 text-accent mt-1 flex-shrink-0" />
+                    <div className="flex-1">
+                      <h4 className="font-semibold text-lg mb-2">Pattern Applied Successfully!</h4>
+                      <p className="text-sm mb-3">
+                        <strong>Pattern:</strong> "{zakEchoSearchResult.appliedPattern}"
+                      </p>
+                      <div className="flex flex-wrap gap-3 text-sm">
+                        <Badge variant="default">
+                          Confidence: {(zakEchoSearchResult.bestMatch!.matchConfidence * 100).toFixed(1)}%
+                        </Badge>
+                        <Badge variant="secondary">
+                          Echo ID: {zakEchoSearchResult.bestMatch!.echo.id}
+                        </Badge>
+                        <Badge variant="outline">
+                          Title: {zakEchoSearchResult.bestMatch!.echo.title}
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                {zakEchoSearchResult.matches.length > 1 && (
+                  <div>
+                    <h4 className="font-semibold mb-3">Other Matches Found:</h4>
+                    <div className="space-y-2">
+                      {zakEchoSearchResult.matches.slice(1, 4).map((match) => (
+                        <div key={match.echo.id} className="p-3 border rounded-lg bg-muted/30">
+                          <div className="flex justify-between items-start mb-1">
+                            <span className="font-medium text-sm">{match.echo.title}</span>
+                            <Badge variant="outline" className="ml-2">
+                              {(match.matchConfidence * 100).toFixed(1)}%
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground italic">"{match.echo.pattern}"</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="p-6 border rounded-lg bg-muted/30 text-center">
+                <XCircle className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="font-semibold mb-2">No Pattern Match Above Threshold</p>
+                <p className="text-sm text-muted-foreground mb-4">
+                  No patterns in the registry matched with confidence ≥ 0.85
+                </p>
+                {zakEchoSearchResult.bestMatch && (
+                  <p className="text-xs text-muted-foreground">
+                    Best match: "{zakEchoSearchResult.bestMatch.echo.title}" 
+                    ({(zakEchoSearchResult.bestMatch.matchConfidence * 100).toFixed(1)}%)
+                  </p>
+                )}
+              </div>
+            )}
+          </CardContent>
+        </Card>
       </TabsContent>
 
       <TabsContent value="deliverable" className="mt-6">
