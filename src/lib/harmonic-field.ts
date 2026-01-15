@@ -5,6 +5,13 @@
  * for pattern matching in the ZAK Echo Registry.
  */
 
+// Constants for harmonic embedding
+const MAGNITUDE_BASE = 0.5;
+const MAGNITUDE_SCALE = 500; // Scale factor for magnitude variation
+const PHASE_SCALE = 10000; // Scale factor for phase distribution
+const HARMONIC_SIMILARITY_WEIGHT = 0.7; // Weight for harmonic similarity in pattern matching
+const KEYWORD_MATCH_WEIGHT = 0.3; // Weight for keyword matching in pattern matching
+
 /**
  * Represents a complex number in polar form
  */
@@ -23,8 +30,8 @@ export function stringToHarmonicVector(text: string, dim: number = 128): Complex
   for (let i = 0; i < dim; i++) {
     // Create pseudo-random but deterministic magnitude and phase from text and dimension
     const seed = hashString(text + i.toString());
-    const magnitude = 0.5 + (seed % 500) / 1000; // Range [0.5, 1.5]
-    const phase = ((seed % 10000) / 10000) * 2 * Math.PI - Math.PI; // Range [-π, π]
+    const magnitude = MAGNITUDE_BASE + (seed % MAGNITUDE_SCALE) / 1000; // Range [0.5, 1.5]
+    const phase = ((seed % PHASE_SCALE) / PHASE_SCALE) * 2 * Math.PI - Math.PI; // Range [-π, π]
     
     vector.push({ magnitude, phase });
   }
@@ -46,8 +53,9 @@ function hashString(str: string): number {
 }
 
 /**
- * Holographic Binding: Binds two complex vectors using circular convolution
- * Simplified version using magnitude and phase
+ * Holographic Binding: Binds two complex vectors
+ * Simplified version using element-wise multiplication in polar form:
+ * multiply magnitudes and add phases (equivalent to complex multiplication)
  */
 export function holographicBind(
   roleVector: ComplexPolar[],
@@ -60,7 +68,7 @@ export function holographicBind(
   const bound: ComplexPolar[] = [];
   const dim = roleVector.length;
   
-  // Simplified binding: multiply magnitudes, add phases
+  // Element-wise complex multiplication in polar form: multiply magnitudes, add phases
   for (let i = 0; i < dim; i++) {
     const magnitude = roleVector[i].magnitude * fillerVector[i].magnitude;
     let phase = roleVector[i].phase + fillerVector[i].phase;
@@ -143,7 +151,6 @@ export function calculatePatternMatchConfidence(
   
   const keywordBoost = totalKeywords > 0 ? keywordMatches / totalKeywords : 0;
   
-  // Combine harmonic similarity with keyword boost
-  // Weight: 70% harmonic, 30% keyword
-  return baseSimilarity * 0.7 + keywordBoost * 0.3;
+  // Combine harmonic similarity with keyword boost using predefined weights
+  return baseSimilarity * HARMONIC_SIMILARITY_WEIGHT + keywordBoost * KEYWORD_MATCH_WEIGHT;
 }
