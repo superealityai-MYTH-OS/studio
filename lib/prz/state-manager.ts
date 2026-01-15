@@ -58,7 +58,7 @@ const DEFAULT_CONFIG: Required<StateTransitionConfig> = {
  * Generate a unique ID for an idea
  */
 function generateIdeaId(): string {
-  return `idea-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+  return `idea-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
 /**

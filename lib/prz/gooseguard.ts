@@ -79,9 +79,14 @@ function calculateActionSimilarity(action1: Action, action2: Action): number {
   }
   
   // For object payloads, check key overlap
-  if (typeof action1.payload === 'object' && typeof action2.payload === 'object') {
-    const keys1 = Object.keys(action1.payload || {});
-    const keys2 = Object.keys(action2.payload || {});
+  if (
+    typeof action1.payload === 'object' && 
+    action1.payload !== null &&
+    typeof action2.payload === 'object' &&
+    action2.payload !== null
+  ) {
+    const keys1 = Object.keys(action1.payload);
+    const keys2 = Object.keys(action2.payload);
     
     const matchingKeys = keys1.filter(key => 
       keys2.includes(key) && 
