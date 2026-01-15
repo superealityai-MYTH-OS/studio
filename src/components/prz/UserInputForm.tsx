@@ -20,9 +20,10 @@ interface UserInputFormProps {
   setResult: (result: PrzPipelineOutput | null) => void;
   setError: (error: string | null) => void;
   isLoading: boolean;
+  apiKeyMissing: boolean;
 }
 
-export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: UserInputFormProps) {
+export function UserInputForm({ setIsLoading, setResult, setError, isLoading, apiKeyMissing }: UserInputFormProps) {
   const { toast } = useToast();
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),
@@ -32,12 +33,25 @@ export function UserInputForm({ setIsLoading, setResult, setError, isLoading }: 
   });
 
   async function onSubmit(data: z.infer<typeof FormSchema>) {
+    if (apiKeyMissing) {
+      toast({
+        title: 'API Key Required',
+        description: 'Please configure GOOGLE_GENAI_API_KEY environment variable before running the pipeline.',
+        variant: 'destructive',
+      });
+      return;
+    }
+    
     setIsLoading(true);
     setResult(null);
     setError(null);
     try {
       const response = await runPrzPipeline({ userRequest: data.request });
       setResult(response);
+      toast({
+        title: 'Pipeline Complete',
+        description: 'Your request has been processed successfully.',
+      });
     } catch (e) {
       const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred.';
       setError(errorMessage);

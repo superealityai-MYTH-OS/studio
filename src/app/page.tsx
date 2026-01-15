@@ -1,17 +1,58 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { PrzPipelineOutput } from '@/app/actions';
 import { Header } from '@/components/prz/Header';
 import { UserInputForm } from '@/components/prz/UserInputForm';
 import { ResultsDisplay } from '@/components/prz/ResultsDisplay';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Card, CardContent } from '@/components/ui/card';
+import { zakEchoRegistry, type ZakEcho } from '@/lib/zak-echoes';
+import { AlertCircle } from 'lucide-react';
 
 export default function Home() {
   const [result, setResult] = useState<PrzPipelineOutput | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mintedEchoes, setMintedEchoes] = useState<ZakEcho[]>([]);
+  const [apiKeyWarning, setApiKeyWarning] = useState<string | null>(null);
+
+  // Check for API key on mount
+  useEffect(() => {
+    const checkApiKey = async () => {
+      try {
+        const response = await fetch('/api/check-api-key');
+        if (!response.ok) {
+          setApiKeyWarning('GOOGLE_GENAI_API_KEY is not configured. The PRZ pipeline requires a valid API key to function.');
+        }
+      } catch (e) {
+        // If endpoint doesn't exist yet, check client-side
+        if (!process.env.NEXT_PUBLIC_GEMINI_API_KEY && !process.env.NEXT_PUBLIC_GOOGLE_GENAI_API_KEY) {
+          setApiKeyWarning('API key environment variable not detected. Please configure GOOGLE_GENAI_API_KEY to use the PRZ pipeline.');
+        }
+      }
+    };
+    checkApiKey();
+  }, []);
+
+  // Handle successful pipeline result and extract minted echo
+  const handlePipelineResult = (pipelineResult: PrzPipelineOutput) => {
+    setResult(pipelineResult);
+    
+    // If a new echo was minted, add it to the registry
+    if (pipelineResult.mintingResult.echoMinted && pipelineResult.mintingResult.echoId) {
+      const newEcho: ZakEcho = {
+        id: pipelineResult.mintingResult.echoId,
+        title: `Dynamic-Echo-${Date.now()}`,
+        pattern: `High-quality pattern from: "${pipelineResult.intentResult.intent.substring(0, 50)}..."`,
+        confidence: pipelineResult.validationResult.flow,
+        validated: 'New',
+        performance: `Flow: ${pipelineResult.validationResult.flow.toFixed(2)}`,
+        ttl: 'PENDING',
+      };
+      setMintedEchoes(prev => [newEcho, ...prev]);
+    }
+  };
 
   const LoadingSkeleton = () => (
     <div className="space-y-8">
@@ -49,18 +90,38 @@ export default function Home() {
 
           <Card className="shadow-2xl shadow-primary/10">
             <CardContent className="p-6 md:p-8">
+              {apiKeyWarning && (
+                <div className="mb-6 p-4 border border-yellow-500/50 bg-yellow-500/10 rounded-lg flex items-start gap-3">
+                  <AlertCircle className="h-5 w-5 text-yellow-500 mt-0.5 flex-shrink-0" />
+                  <div>
+                    <p className="font-semibold text-yellow-600 dark:text-yellow-400">API Key Warning</p>
+                    <p className="text-sm text-yellow-700 dark:text-yellow-300 mt-1">{apiKeyWarning}</p>
+                  </div>
+                </div>
+              )}
               <UserInputForm
-                setResult={setResult}
+                setResult={handlePipelineResult}
                 setIsLoading={setIsLoading}
                 isLoading={isLoading}
                 setError={setError}
+                apiKeyMissing={!!apiKeyWarning}
               />
             </CardContent>
           </Card>
 
           {isLoading && (
             <section>
-              <LoadingSkeleton />
+              <Card className="border-primary/50">
+                <CardContent className="p-6">
+                  <div className="flex items-center justify-center gap-3 text-primary">
+                    <div className="h-5 w-5 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="font-medium">Pipeline running... Processing intent, generating deliverable, and validating with 7 validators</p>
+                  </div>
+                </CardContent>
+              </Card>
+              <div className="mt-6">
+                <LoadingSkeleton />
+              </div>
             </section>
           )}
           
@@ -74,7 +135,7 @@ export default function Home() {
 
           {result && !isLoading && (
             <section>
-              <ResultsDisplay result={result} />
+              <ResultsDisplay result={result} mintedEchoes={mintedEchoes} />
             </section>
           )}
         </div>

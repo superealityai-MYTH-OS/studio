@@ -1,4 +1,5 @@
 import type { PrzPipelineOutput } from '@/app/actions';
+import type { ZakEcho } from '@/lib/zak-echoes';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { MetricCard } from '@/components/prz/MetricCard';
@@ -12,7 +13,7 @@ function getTierBadgeVariant(tier: string): 'default' | 'secondary' | 'destructi
   return 'destructive';
 }
 
-export function ResultsDisplay({ result }: { result: PrzPipelineOutput }) {
+export function ResultsDisplay({ result, mintedEchoes }: { result: PrzPipelineOutput; mintedEchoes: ZakEcho[] }) {
   const { intentResult, deliverable, validationResult, mintingResult } = result;
 
   return (
@@ -135,7 +136,7 @@ export function ResultsDisplay({ result }: { result: PrzPipelineOutput }) {
       </TabsContent>
 
       <TabsContent value="registry" className="mt-6">
-        <ZakEchoRegistry />
+        <ZakEchoRegistry mintedEchoes={mintedEchoes} />
       </TabsContent>
     </Tabs>
   );
