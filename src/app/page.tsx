@@ -45,7 +45,8 @@ export default function Home() {
         id: pipelineResult.mintingResult.echoId,
         title: `Dynamic-Echo-${Date.now()}`,
         pattern: `High-quality pattern from: "${pipelineResult.intentResult.intent.substring(0, 50)}..."`,
-        confidence: pipelineResult.validationResult.flow,
+        // Flow score is already 0-1 (Resonance × Conductivity), clamp to ensure bounds
+        confidence: Math.min(1, Math.max(0, pipelineResult.validationResult.flow)),
         validated: 'New',
         performance: `Flow: ${pipelineResult.validationResult.flow.toFixed(2)}`,
         ttl: 'PENDING',
