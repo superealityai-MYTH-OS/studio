@@ -19,6 +19,7 @@ export {
   detectLoop,
   LOOP_THRESHOLD,
   LOOP_DETECTION_WINDOW,
+  SIMILARITY_THRESHOLD,
   type Action,
   type BeforeActionResult,
   type LoopDetection,

@@ -51,11 +51,17 @@ export interface Resonance {
 export const REALITY_THRESHOLD = 0.95;
 
 /**
+ * Default magnitude when no historical patterns are available
+ * Set to 0.5 as a neutral midpoint value
+ */
+const DEFAULT_MAGNITUDE = 0.5;
+
+/**
  * Calculate dot product of two vectors
  */
 function dotProduct(a: number[], b: number[]): number {
   if (a.length !== b.length) {
-    throw new Error('Vectors must have the same length');
+    throw new Error(`Vector length mismatch: ${a.length} !== ${b.length}`);
   }
   return a.reduce((sum, val, i) => sum + val * b[i], 0);
 }
@@ -91,7 +97,7 @@ export function measureResonance(pulse: Pulse, context: Context): Resonance {
   // Assumes pulse.magnitude and context.patterns average should align
   const contextMagnitude = context.patterns.length > 0
     ? context.patterns.reduce((sum, val) => sum + val, 0) / context.patterns.length
-    : 0.5;
+    : DEFAULT_MAGNITUDE;
   const magnitudeAlignment = 1 - Math.abs(pulse.magnitude - contextMagnitude);
   
   // Calculate frequency alignment

@@ -54,6 +54,11 @@ export const LOOP_THRESHOLD = 3;
 export const LOOP_DETECTION_WINDOW = 5 * 60 * 1000;
 
 /**
+ * Similarity threshold for considering actions as similar (0-1)
+ */
+export const SIMILARITY_THRESHOLD = 0.7;
+
+/**
  * Calculate similarity between two actions
  * Returns a value between 0 (completely different) and 1 (identical)
  */
@@ -131,8 +136,8 @@ export function detectLoop(actions: Action[]): LoopDetection {
   for (let i = recentActions.length - 2; i >= 0; i--) {
     const similarity = calculateActionSimilarity(mostRecentAction, recentActions[i]);
     
-    // Consider actions similar if similarity > 0.7
-    if (similarity > 0.7) {
+    // Consider actions similar if similarity exceeds threshold
+    if (similarity > SIMILARITY_THRESHOLD) {
       similarCount++;
     }
   }
